@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Serviço para o banco de dados PostgreSQL
+  postgres-clientes:
+    image: postgres:13
+    container_name: postgres-clientes
+    environment:
+      POSTGRES_DB: clientes_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-clientes-data:/var/lib/postgresql/data
+
+  postgres-seguros:
+    image: postgres:13
+    container_name: postgres-seguros
+    environment:
+      POSTGRES_DB: seguros_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-seguros-data:/var/lib/postgresql/data
+
+  # Serviço para a API de Cadastro de Clientes
+  cliente-api:
+    image: openjdk:11
+    container_name: cliente-api
+    build:
+      context: ./cliente-api
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-clientes:5432/clientes_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-clientes
+
+  # Serviço para a API de Seguros
+  seguro-api:
+    image: openjdk:11
+    container_name: seguro-api
+    build:
+      context: ./seguro-api
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-seguros:5432/seguros_db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-seguros
+
+volumes:
+  postgres-clientes-data:
+  postgres-seguros-data:
