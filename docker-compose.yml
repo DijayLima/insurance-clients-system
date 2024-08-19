@@ -15,33 +15,31 @@ services:
 
   # Serviço para a API de Cadastro de Clientes
   api-customer-registration:
-    image: openjdk:17
-    container_name: api-customer-registration
     build:
-      context: ./api-customer-registration
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-customer-registration/Dockerfile
+    container_name: api-customer-registration
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-insurances:5432/insurances_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     ports:
-      - "8080:8080"
+      - "8081:8080"
     depends_on:
       - postgres-insurances
 
   # Serviço para a API de Seguros
   api-insurances-customers:
-    image: openjdk:17
-    container_name: api-insurances-customers
     build:
-      context: ./api-insurances-customers
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-insurances-customers/Dockerfile
+    container_name: api-insurances-customers
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-insurances:5432/insurances_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     ports:
-      - "8081:8081"
+      - "8082:8080"
     depends_on:
       - postgres-insurances
 
