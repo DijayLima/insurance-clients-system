@@ -100,30 +100,6 @@ class InsuranceServiceImplTest {
         verify(insuranceHiringRepository, times(1)).save(any(InsuranceHiring.class));
     }
 
-    @Test
-    @DisplayName("Test consult customer circuit breaker.")
-    void testConsultCustomerCircuitBreaker() {
-        // Arrange
-        when(customersServiceClient.getCustomerById(anyString())).thenThrow(new InsuranceException("Service customer unavailable."));
-
-        // Act & Assert
-        InsuranceException exception = assertThrows(InsuranceException.class, () -> {
-            insuranceService.consultCustomer("10110110107");
-        });
-
-        assertEquals("Service customer unavailable.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Test fallback.")
-    void testFallback() {
-        // Act & Assert
-        InsuranceException exception = assertThrows(InsuranceException.class, () -> {
-            insuranceService.fallback("10110110107");
-        });
-
-        assertEquals("Service customer unavailable.", exception.getMessage());
-    }
 
     private static CustomerResponse getCustomerResponse() {
         return CustomerResponse.builder()

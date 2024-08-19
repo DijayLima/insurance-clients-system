@@ -1,63 +1,49 @@
 version: '3.8'
 
 services:
-  # Serviço para o banco de dados PostgreSQL
-  postgres-clientes:
+  postgres-insurances:
     image: postgres:13
-    container_name: postgres-clientes
+    container_name: postgres-insurances
     environment:
-      POSTGRES_DB: clientes_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-clientes-data:/var/lib/postgresql/data
-
-  postgres-seguros:
-    image: postgres:13
-    container_name: postgres-seguros
-    environment:
-      POSTGRES_DB: seguros_db
+      POSTGRES_DB: insurances_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
       - "5433:5432"
     volumes:
-      - postgres-seguros-data:/var/lib/postgresql/data
+      - postgres-insurances-data:/var/lib/postgresql/data
 
   # Serviço para a API de Cadastro de Clientes
-  cliente-api:
-    image: openjdk:11
-    container_name: cliente-api
+  api-customer-registration:
+    image: openjdk:17
+    container_name: api-customer-registration
     build:
-      context: ./cliente-api
+      context: ./api-customer-registration
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-clientes:5432/clientes_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-insurances:5432/insurances_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-clientes
+      - postgres-insurances
 
   # Serviço para a API de Seguros
-  seguro-api:
-    image: openjdk:11
-    container_name: seguro-api
+  api-insurances-customers:
+    image: openjdk:17
+    container_name: api-insurances-customers
     build:
-      context: ./seguro-api
+      context: ./api-insurances-customers
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-seguros:5432/seguros_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-insurances:5432/insurances_db
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: password
     ports:
       - "8081:8081"
     depends_on:
-      - postgres-seguros
+      - postgres-insurances
 
 volumes:
-  postgres-clientes-data:
-  postgres-seguros-data:
+  postgres-insurances-data:

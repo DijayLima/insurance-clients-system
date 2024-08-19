@@ -2,10 +2,13 @@ package com.api.insurances.backend.controller.exceptionhandler;
 
 import com.api.insurances.backend.cross.exception.InsuranceException;
 import com.api.insurances.backend.cross.dto.ErrorDetails;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -14,14 +17,18 @@ import org.springframework.web.context.request.WebRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 class GlobalExceptionHandlerTest {
 
-    @Autowired
+    @InjectMocks
     GlobalExceptionHandler handler;
 
     @Mock
     WebRequest request;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     @DisplayName("Handles InsuranceException and returns not found status")

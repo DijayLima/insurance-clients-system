@@ -11,8 +11,10 @@ import com.api.insurances.backend.repository.InsuranceHiringRepository;
 import com.api.insurances.backend.service.rest.CustomersServiceClient;
 import com.api.insurances.backend.service.InsuranceService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,6 +33,7 @@ public class InsuranceServiceImpl implements InsuranceService {
         log.info("[simulateInsurance] - begin");
 
         CustomerResponse customer = consultCustomer(insuranceRequest.getCustomerId());
+        validCustomer(customer);
         InsuranceType insurance = findInsuranceById(insuranceRequest.getInsurance());
 
         int years = calculateAge(customer.getDateOfBirth());
@@ -47,6 +50,7 @@ public class InsuranceServiceImpl implements InsuranceService {
         log.info("[hireInsurance] - begin");
 
         CustomerResponse customer = consultCustomer(insuranceRequest.getCustomerId());
+        validCustomer(customer);
         InsuranceType insurance = findInsuranceById(insuranceRequest.getInsurance());
 
         int years = calculateAge(customer.getDateOfBirth());
@@ -65,14 +69,9 @@ public class InsuranceServiceImpl implements InsuranceService {
         return buildInsuranceResponse(insurance, insuranceHiringSaved.getValueMonthly(), customer);
     }
 
-    @CircuitBreaker(name = "api-customer-circuit-breaker", fallbackMethod = "fallback")
-    public CustomerResponse consultCustomer(String cpf) {
+    private CustomerResponse consultCustomer(String cpf) {
         log.info("[consultCustomer] - consult: {}", cpf);
         return customersServiceClient.getCustomerById(cpf);
-    }
-
-    public CustomerResponse fallback(String cpf) {
-        throw new InsuranceException("Service customer unavailable.");
     }
 
     private InsuranceType findInsuranceById(int insuranceId) {
@@ -87,6 +86,12 @@ public class InsuranceServiceImpl implements InsuranceService {
         if(years == 0)
             years = 1;
         return insurance.getValueBase() * years;
+    }
+
+    private static void validCustomer(CustomerResponse customer) {
+        if(ObjectUtils.isEmpty(customer.getCpf())){
+            throw new InsuranceException("Service customer unavailable.");
+        }
     }
 
     private InsuranceResponse buildInsuranceResponse(InsuranceType insurance, double valueInsurance, CustomerResponse customer) {
